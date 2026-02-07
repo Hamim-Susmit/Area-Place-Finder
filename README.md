@@ -6,7 +6,6 @@ A production-ready Next.js app that finds restaurants and medical centers near a
 ```
 .
 ├── .dockerignore
-├── .eslintrc.json
 ├── .env.example
 ├── app
 │   ├── api
