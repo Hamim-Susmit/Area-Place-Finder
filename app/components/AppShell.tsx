@@ -31,6 +31,7 @@ export default function AppShell() {
   const [nextPageToken, setNextPageToken] = useState<string | undefined>();
   const [detailsMap, setDetailsMap] = useState<Record<string, DetailsState>>({});
   const abortRef = useRef<AbortController | null>(null);
+  const searchIdRef = useRef(0);
 
   const runSearch = useCallback(
     async ({
@@ -40,6 +41,7 @@ export default function AppShell() {
       pageToken?: string;
       append?: boolean;
     } = {}) => {
+      const searchId = (searchIdRef.current += 1);
       setError(null);
       setLoading(true);
       abortRef.current?.abort();
@@ -61,18 +63,24 @@ export default function AppShell() {
         });
 
         const payload = await response.json();
+        if (searchId !== searchIdRef.current) return;
         if (!payload.ok) {
           throw new Error(payload.error?.message || "Unable to fetch places.");
         }
 
         setPlaces((prev) => (append ? [...prev, ...payload.data.results] : payload.data.results));
         setNextPageToken(payload.data.nextPageToken);
-        setSelectedId(null);
+        if (!append) {
+          setSelectedId(null);
+        }
       } catch (err) {
         if ((err as Error).name === "AbortError") return;
+        if (searchId !== searchIdRef.current) return;
         setError((err as Error).message);
       } finally {
-        setLoading(false);
+        if (searchId === searchIdRef.current) {
+          setLoading(false);
+        }
       }
     },
     [center.lat, center.lng, radiusMeters, category]
@@ -97,14 +105,18 @@ export default function AppShell() {
   };
 
   const handleManualSearch = async () => {
-    if (!inputRef.current?.value) return;
+    const query = inputRef.current?.value?.trim();
+    if (!query) {
+      setError("Enter a location to search.");
+      return;
+    }
     setError(null);
     setLoading(true);
     try {
       const response = await fetch("/api/geocode", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: inputRef.current.value })
+        body: JSON.stringify({ query })
       });
       const payload = await response.json();
       if (!payload.ok) {
