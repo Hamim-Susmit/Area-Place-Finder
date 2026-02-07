@@ -1,9 +1,14 @@
-version: "3.9"
 services:
   web:
     build: .
     ports:
       - "3000:3000"
     environment:
-      NEXT_PUBLIC_GOOGLE_MAPS_KEY: ${NEXT_PUBLIC_GOOGLE_MAPS_KEY}
-      GOOGLE_MAPS_SERVER_KEY: ${GOOGLE_MAPS_SERVER_KEY}
+      NODE_ENV: production
+      OSM_USER_AGENT: ${OSM_USER_AGENT:-AreaPlaceFinder/1.0}
+      OSM_NOMINATIM_EMAIL: ${OSM_NOMINATIM_EMAIL:-}
+      OVERPASS_ENDPOINT: ${OVERPASS_ENDPOINT:-https://overpass-api.de/api/interpreter}
+      OVERPASS_TIMEOUT: ${OVERPASS_TIMEOUT:-25}
+      NEXT_PUBLIC_OSM_TILE_URL: ${NEXT_PUBLIC_OSM_TILE_URL:-https://tile.openstreetmap.org/{z}/{x}/{y}.png}
+      NEXT_PUBLIC_OSM_TILE_ATTRIBUTION: ${NEXT_PUBLIC_OSM_TILE_ATTRIBUTION:-&copy; OpenStreetMap contributors}
+    restart: unless-stopped

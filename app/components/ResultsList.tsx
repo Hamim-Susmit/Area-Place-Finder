@@ -55,7 +55,12 @@ export default function ResultsList({
 
       <div className="mt-3 space-y-3 max-h-[620px] overflow-y-auto pr-1">
         {list.map((place) => (
-          <div key={place.placeId} ref={(el) => (itemRefs.current[place.placeId] = el)}>
+          <div
+            key={place.placeId}
+            ref={(el) => {
+              if (el) itemRefs.current[place.placeId] = el;
+            }}
+          >
             <PlaceCard
               place={place}
               selected={place.placeId === selectedId}

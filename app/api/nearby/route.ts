@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { nearbySearch } from "../../../lib/google";
+import { fetchNearbyPlaces } from "../../../lib/osm";
+import type { NormalizedPlace } from "../../../lib/types";
 import { nearbyCache } from "../../../lib/cacheInstances";
 import { fail, ok } from "../../../lib/response";
 import { checkRateLimit, getClientIp } from "../../../lib/rateLimiter";
@@ -12,6 +13,8 @@ const schema = z.object({
   category: z.enum(["restaurants", "medical"]),
   pageToken: z.string().optional()
 });
+
+const PAGE_SIZE = 30;
 
 export async function POST(request: Request) {
   const ip = getClientIp(request.headers);
@@ -26,16 +29,26 @@ export async function POST(request: Request) {
     const body = schema.parse(await request.json());
     const latKey = body.lat.toFixed(4);
     const lngKey = body.lng.toFixed(4);
-    const cacheKey = `${latKey},${lngKey}:${body.radiusMeters}:${body.category}:${body.pageToken ?? "first"}`;
+    const cacheKey = `${latKey},${lngKey}:${body.radiusMeters}:${body.category}`;
 
-    const cached = nearbyCache.get(cacheKey);
-    if (cached) {
-      return NextResponse.json(ok(cached));
+    let allResults = nearbyCache.get(cacheKey) as NormalizedPlace[] | undefined;
+    if (!allResults) {
+      allResults = await fetchNearbyPlaces(body);
+      nearbyCache.set(cacheKey, allResults);
     }
 
-    const data = await nearbySearch(body);
-    nearbyCache.set(cacheKey, data);
-    return NextResponse.json(ok(data));
+    const offset = body.pageToken ? Number(body.pageToken) : 0;
+    const safeOffset = Number.isFinite(offset) && offset > 0 ? Math.floor(offset) : 0;
+    const results = allResults.slice(safeOffset, safeOffset + PAGE_SIZE);
+    const nextPageToken =
+      safeOffset + PAGE_SIZE < allResults.length ? String(safeOffset + PAGE_SIZE) : undefined;
+
+    return NextResponse.json(
+      ok({
+        results,
+        nextPageToken
+      })
+    );
   } catch (error) {
     const message = error instanceof Error ? error.message : "Invalid request";
     return NextResponse.json(fail("BAD_REQUEST", message), { status: 400 });

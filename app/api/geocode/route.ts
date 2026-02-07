@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { geocodeAddress } from "../../../lib/google";
+import { geocodeAddress } from "../../../lib/osm";
 import { geocodeCache } from "../../../lib/cacheInstances";
 import { fail, ok } from "../../../lib/response";
 import { checkRateLimit, getClientIp } from "../../../lib/rateLimiter";

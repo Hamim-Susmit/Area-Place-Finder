@@ -22,4 +22,5 @@ body {
 
 .map-container {
   min-height: 320px;
+  overflow: hidden;
 }

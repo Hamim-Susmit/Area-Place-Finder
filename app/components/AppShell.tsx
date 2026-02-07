@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useGoogleMaps } from "./useGoogleMaps";
+import { useLeaflet } from "./useLeaflet";
 import MapPane from "./MapPane";
 import ResultsList from "./ResultsList";
 import type { Category, NormalizedPlace, PlaceDetails } from "../../lib/types";
@@ -17,13 +17,12 @@ type DetailsState = {
 };
 
 export default function AppShell() {
-  const { ready, error: mapsError } = useGoogleMaps();
+  const { leaflet, ready, error: mapsError } = useLeaflet();
   const inputRef = useRef<HTMLInputElement>(null);
   const [center, setCenter] = useState(initialCenter);
   const [locationLabel, setLocationLabel] = useState("Times Square, NYC");
   const [category, setCategory] = useState<Category>("restaurants");
   const [radiusMeters, setRadiusMeters] = useState(2000);
-  const [sortBy, setSortBy] = useState<"distance" | "rating">("distance");
   const [filter, setFilter] = useState("");
   const [places, setPlaces] = useState<NormalizedPlace[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -32,21 +31,6 @@ export default function AppShell() {
   const [nextPageToken, setNextPageToken] = useState<string | undefined>();
   const [detailsMap, setDetailsMap] = useState<Record<string, DetailsState>>({});
   const abortRef = useRef<AbortController | null>(null);
-
-  useEffect(() => {
-    if (!ready || !inputRef.current) return;
-    const autocomplete = new google.maps.places.Autocomplete(inputRef.current, {
-      fields: ["formatted_address", "geometry", "name"]
-    });
-    autocomplete.addListener("place_changed", () => {
-      const place = autocomplete.getPlace();
-      if (!place.geometry?.location) return;
-      const lat = place.geometry.location.lat();
-      const lng = place.geometry.location.lng();
-      setCenter({ lat, lng });
-      setLocationLabel(place.formatted_address || place.name || "Selected location");
-    });
-  }, [ready]);
 
   const runSearch = useCallback(
     async ({
@@ -176,13 +160,8 @@ export default function AppShell() {
       );
     });
 
-    return filtered.sort((a, b) => {
-      if (sortBy === "rating") {
-        return (b.rating || 0) - (a.rating || 0);
-      }
-      return a.distanceMeters - b.distanceMeters;
-    });
-  }, [places, filter, sortBy]);
+    return filtered.sort((a, b) => a.distanceMeters - b.distanceMeters);
+  }, [places, filter]);
 
   const hasResults = visiblePlaces.length > 0;
 
@@ -203,7 +182,7 @@ export default function AppShell() {
           </div>
           <div className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-xs text-slate-500">
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
-            Live results powered by Google Maps
+            Live results powered by OpenStreetMap + Overpass
           </div>
         </div>
       </header>
@@ -244,7 +223,7 @@ export default function AppShell() {
               </button>
             </div>
 
-            <div className="mt-5 grid gap-3 md:grid-cols-4">
+            <div className="mt-5 grid gap-3 md:grid-cols-3">
               <div className="md:col-span-2">
                 <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                   Category
@@ -283,19 +262,6 @@ export default function AppShell() {
                 </select>
               </div>
 
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                  Sort
-                </label>
-                <select
-                  className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
-                  value={sortBy}
-                  onChange={(event) => setSortBy(event.target.value as "distance" | "rating")}
-                >
-                  <option value="distance">Distance</option>
-                  <option value="rating">Rating</option>
-                </select>
-              </div>
             </div>
 
             <div className="mt-5">
@@ -319,6 +285,7 @@ export default function AppShell() {
             ) : (
               <MapPane
                 ready={ready}
+                leaflet={leaflet}
                 center={center}
                 places={visiblePlaces}
                 selectedId={selectedId}

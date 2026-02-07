@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { placeDetails } from "../../../lib/google";
+import { placeDetails } from "../../../lib/osm";
 import { detailsCache } from "../../../lib/cacheInstances";
 import { fail, ok } from "../../../lib/response";
 import { checkRateLimit, getClientIp } from "../../../lib/rateLimiter";

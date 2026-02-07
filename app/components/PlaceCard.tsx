@@ -58,11 +58,6 @@ export default function PlaceCard({
           <span className="rounded-full bg-emerald-100 px-2 py-1 text-emerald-700">
             {place.openNow == null ? "Hours unknown" : place.openNow ? "Open now" : "Closed"}
           </span>
-          {place.rating ? (
-            <span className="rounded-full bg-slate-100 px-2 py-1">
-              ⭐ {place.rating.toFixed(1)} ({place.userRatingsTotal ?? 0})
-            </span>
-          ) : null}
         </div>
       </button>
       <div className="mt-3 flex items-center justify-between text-xs">

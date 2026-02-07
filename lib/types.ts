@@ -15,8 +15,6 @@ export type NormalizedPlace = {
   lat: number;
   lng: number;
   address: string;
-  rating?: number;
-  userRatingsTotal?: number;
   openNow?: boolean;
   types?: string[];
   distanceMeters: number;
