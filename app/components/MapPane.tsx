@@ -86,6 +86,7 @@ export default function MapPane({
     if (!mapInstance.current || !leaflet) return;
     markers.current.forEach((marker) => marker.remove());
     markers.current.clear();
+    popupRef.current?.remove();
 
     if (!places.length) return;
 
