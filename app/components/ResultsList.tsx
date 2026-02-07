@@ -25,6 +25,10 @@ export default function ResultsList({
   const list = useMemo(() => places, [places]);
 
   useEffect(() => {
+    itemRefs.current = {};
+  }, [places]);
+
+  useEffect(() => {
     if (!selectedId) return;
     const element = itemRefs.current[selectedId];
     if (element) {

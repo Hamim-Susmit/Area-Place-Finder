@@ -5,6 +5,8 @@ A production-ready Next.js app that finds restaurants and medical centers near a
 ## File Tree
 ```
 .
+├── .dockerignore
+├── .env.example
 ├── app
 │   ├── api
 │   │   ├── details
@@ -35,6 +37,7 @@ A production-ready Next.js app that finds restaurants and medical centers near a
 ├── next.config.mjs
 ├── package.json
 ├── postcss.config.mjs
+├── public
 ├── tailwind.config.ts
 └── tsconfig.json
 ```
@@ -54,6 +57,11 @@ A production-ready Next.js app that finds restaurants and medical centers near a
    npm run dev
    ```
    App runs at `http://localhost:3000`.
+
+Optional checks:
+```bash
+npm run lint
+```
 
 ## OpenStreetMap & Overpass
 This app uses open data sources instead of Google APIs:
@@ -112,4 +120,4 @@ docker build -t area-place-finder:latest .
 docker run --rm -p 3000:3000 area-place-finder:latest
 ```
 
-Files: `Dockerfile`, `.dockerignore`, `docker-compose.yml`, `docker-compose.override.yml`, `.env.example`.
+Files: `Dockerfile`, `.dockerignore`, `docker-compose.yml`, `.env.example`.
