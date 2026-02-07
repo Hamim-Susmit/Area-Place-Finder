@@ -31,11 +31,6 @@ A production-ready Next.js app that finds restaurants and medical centers near a
 │   ├── rateLimiter.ts
 │   ├── response.ts
 │   └── types.ts
-├── public
-│   └── .gitkeep
-├── .dockerignore
-├── docker-compose.yml
-├── Dockerfile
 ├── next-env.d.ts
 ├── next.config.mjs
 ├── package.json
@@ -58,27 +53,6 @@ A production-ready Next.js app that finds restaurants and medical centers near a
    ```bash
    npm run dev
    ```
-
-## Containerized Run
-1. Create a `.env.local` file:
-   ```bash
-   NEXT_PUBLIC_GOOGLE_MAPS_KEY=your_client_key
-   GOOGLE_MAPS_SERVER_KEY=your_server_key
-   ```
-2. Build and run with Docker Compose:
-   ```bash
-   docker compose up --build
-   ```
-3. Visit `http://localhost:3000`.
-
-Alternatively, run with Docker directly:
-```bash
-docker build -t area-place-finder .
-docker run --rm -p 3000:3000 \
-  -e NEXT_PUBLIC_GOOGLE_MAPS_KEY=your_client_key \
-  -e GOOGLE_MAPS_SERVER_KEY=your_server_key \
-  area-place-finder
-```
 
 ## Google APIs to Enable
 Enable these APIs in Google Cloud Console:
