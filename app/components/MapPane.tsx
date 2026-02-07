@@ -46,6 +46,7 @@ export default function MapPane({
   const mapInstance = useRef<import("leaflet").Map | null>(null);
   const markers = useRef<Map<string, import("leaflet").Marker>>(new Map());
   const popupRef = useRef<import("leaflet").Popup | null>(null);
+  const initialCenterRef = useRef(center);
 
   useEffect(() => {
     if (!ready || !leaflet || !mapRef.current || mapInstance.current) return;
@@ -56,7 +57,7 @@ export default function MapPane({
     });
 
     mapInstance.current = leaflet.map(mapRef.current, {
-      center: [center.lat, center.lng],
+      center: [initialCenterRef.current.lat, initialCenterRef.current.lng],
       zoom: 13,
       zoomControl: true,
       scrollWheelZoom: true
